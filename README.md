@@ -50,6 +50,15 @@ node package.mjs        # -> sepia-examples.zip
 - `ui/index.html` —— 沙箱化 RPC 演示。
 - `package.mjs` —— 极简 stored-zip 打包脚本（无依赖）。
 
-SDK 位于 `../backend/plugin-sdk`（no_std，wasm32-unknown-unknown）。本仓库是独立的
-Git 仓库，但只通过相对路径 `../backend/plugin-sdk` 依赖该 SDK，因此构建时需要同级检出
-Sepia 主仓库（`backend/plugin-sdk` 与 `plugin-examples/` 并列）。
+SDK 位于 Sepia 主仓库的 `backend/plugin-sdk`（no_std，wasm32-unknown-unknown）。本仓库把它
+作为 git 依赖引用并钉住提交 `e912ca66`，因此**独立克隆即可构建**，无需同级检出 Sepia。
+
+如果你在 Sepia 检出内开发（`plugin-examples/` 与 `backend/plugin-sdk` 并列），可放一个本地
+`.cargo/config.toml` 让构建改用本地 SDK（离线、免拉取；该文件已被 `.gitignore` 忽略，不随仓库分发）：
+
+```toml
+paths = ["../backend/plugin-sdk"]
+```
+
+这里用 `paths` 而不是 `[patch]`：它只在本机生效，且不会把已提交 `Cargo.lock` 中的 git 源改成本地路径。
+升级 SDK 时，把 `Cargo.toml` 里的 `rev` 换成新的 Sepia 提交即可。

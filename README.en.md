@@ -54,7 +54,19 @@ no network access of its own. Every button calls the guest through
 - `ui/index.html` — sandboxed RPC demo.
 - `package.mjs` — minimal stored-zip packager (no dependencies).
 
-The SDK lives in `../backend/plugin-sdk` (no_std, wasm32-unknown-unknown). This
-repository is a standalone Git repository, but it depends on that SDK only
-through the relative path `../backend/plugin-sdk`, so building it requires a
-Sepia checkout beside it (`backend/plugin-sdk` next to `plugin-examples/`).
+The SDK lives in the Sepia repository at `backend/plugin-sdk` (no_std,
+wasm32-unknown-unknown). This repository depends on it as a Git dependency pinned
+to commit `e912ca66`, so a **standalone clone builds as-is** — no sibling Sepia
+checkout required.
+
+When developing inside a Sepia checkout (`plugin-examples/` next to
+`backend/plugin-sdk`), drop a local `.cargo/config.toml` to build against the
+local SDK (offline, no fetch; the file is git-ignored and not distributed):
+
+```toml
+paths = ["../backend/plugin-sdk"]
+```
+
+`paths` is used rather than `[patch]` because it applies only on that machine and
+leaves the Git source in the committed `Cargo.lock` untouched. To upgrade the SDK,
+change `rev` in `Cargo.toml` to a newer Sepia commit.
