@@ -1,57 +1,55 @@
-# Sepia Examples Plugin
+# Sepia 示例插件
 
-A readable reference plugin that exercises **every hook and host capability** of
-the Sepia WASM plugin runtime. It is the source of the `echo.wasm` fixture used
-by `backend/tests/plugins.rs`, and a starting point for your own plugins.
+[English](README.en.md) | 简体中文
 
-## Safe by default
+一个易读的参考插件，演示 Sepia WASM 插件运行时**每一个 hook 与宿主能力**。它同时是
+`backend/tests/plugins.rs` 所用 `echo.wasm` 测试夹具的来源，也可以作为你自己插件的起点。
 
-Installing and enabling this plugin does **not** change traffic. Each rewriting
-hook is gated behind an opt-in config flag; with an empty config every hook
-returns its input unchanged. Open **Plugins → Sepia Examples → Configure** and
-set a flag to activate that behavior:
+## 默认安全
 
-| Config key | Type | Effect |
+安装并启用本插件**不会**改变流量。每个会改写请求的 hook 都由一个需主动开启的配置开关控制；
+配置为空时，所有 hook 都原样返回输入。打开 **插件 → Sepia Examples → 配置**，设置某个开关
+即可启用对应行为：
+
+| 配置键 | 类型 | 作用 |
 | --- | --- | --- |
-| `model` | string | Rewrite the inbound model before routing |
-| `system` | string | Override the system prompt before routing |
-| `max_tokens` | integer | Cap `max_tokens` before routing (0 = keep) |
-| `exclude` | array | Provider ids to exclude from routing, e.g. `[2, 5]` |
-| `reverse_candidates` | boolean | Reverse candidate order (strategy hook demo) |
-| `add_header` | boolean | Add `x-sepia-plugin: example` to upstream requests |
-| `response_marker` | string | Append a marker to each response choice's content |
+| `model` | string | 在路由之前改写入站 model |
+| `system` | string | 在路由之前覆盖系统提示词 |
+| `max_tokens` | integer | 在路由之前限制 `max_tokens`（0 = 保持原值） |
+| `exclude` | array | 从路由中排除的供应商 id，例如 `[2, 5]` |
+| `reverse_candidates` | boolean | 反转候选顺序（strategy hook 演示） |
+| `add_header` | boolean | 向上游请求添加 `x-sepia-plugin: example` 头 |
+| `response_marker` | string | 在每个响应 choice 的 content 末尾追加标记 |
 
-`relay.completed` (kv counter) and the plugin-backed provider hooks
-(`provider.models` / `provider.fetch`) are observation/synthetic and always run.
+`relay.completed`（kv 计数器）以及插件型供应商 hook（`provider.models` / `provider.fetch`）
+属于观测/合成类能力，始终运行。
 
-## Build & package
+## 构建与打包
 
 ```sh
 cargo build --target wasm32-unknown-unknown --release
 node package.mjs        # -> sepia-examples.zip
 ```
 
-Install `sepia-examples.zip` from the Plugins page (admin), enable it, then open
-its sandboxed UI to try the RPC bridge.
+从插件页（管理员）安装 `sepia-examples.zip`，启用它，然后打开其沙箱化 UI 试用 RPC 桥。
 
-## Sandboxed UI
+## 沙箱化 UI
 
-`ui/index.html` runs in a `sandbox="allow-scripts"` iframe with a strict CSP and
-no network access of its own. Every button calls the guest through
-`window.sepia.call(method, params)`, demonstrating one host capability:
+`ui/index.html` 运行在 `sandbox="allow-scripts"` 的 iframe 中，受严格 CSP 约束，自身没有
+网络访问能力。每个按钮都通过 `window.sepia.call(method, params)` 调用 guest，演示一种宿主能力：
 
-- **count** → `kv` (reads the completion counter)
-- **store-secret** → `secret` (encrypts a value, reads it back)
-- **fetch** → `http` (fetches an origin in `manifest.http_origins`)
-- **echo** → `log` + echo (writes a host log line, returns the body)
+- **count** → `kv`（读取完成计数器）
+- **store-secret** → `secret`（加密一个值，再读回）
+- **fetch** → `http`（访问 `manifest.http_origins` 中的源）
+- **echo** → `log` + 回显（写入一行宿主日志，返回请求体）
 
-## Layout
+## 目录结构
 
-- `src/lib.rs` — guest `dispatch`, one commented function per hook.
-- `manifest.json` — events, permissions, `config_schema`, UI entry.
-- `ui/index.html` — sandboxed RPC demo.
-- `package.mjs` — minimal stored-zip packager (no dependencies).
+- `src/lib.rs` —— guest 的 `dispatch`，每个 hook 一个带注释的函数。
+- `manifest.json` —— 事件、权限、`config_schema`、UI 入口。
+- `ui/index.html` —— 沙箱化 RPC 演示。
+- `package.mjs` —— 极简 stored-zip 打包脚本（无依赖）。
 
-The SDK lives in `../backend/plugin-sdk` (no_std, wasm32-unknown-unknown). This
-crate is standalone and can be split into its own repository; only the SDK path
-dependency needs to be repointed.
+SDK 位于 `../backend/plugin-sdk`（no_std，wasm32-unknown-unknown）。本仓库是独立的
+Git 仓库，但只通过相对路径 `../backend/plugin-sdk` 依赖该 SDK，因此构建时需要同级检出
+Sepia 主仓库（`backend/plugin-sdk` 与 `plugin-examples/` 并列）。
