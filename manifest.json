@@ -1,0 +1,72 @@
+{
+  "id": "sepia-examples",
+  "name": "Sepia Examples",
+  "version": "1.0.0",
+  "host_api": 1,
+  "entry": "handle",
+  "description": "Reference plugin demonstrating every hook and host capability. Safe by default: rewriting hooks stay inert until you opt in via Configure.",
+  "events": [
+    "relay.request.before_route",
+    "relay.route.filter",
+    "relay.strategy",
+    "relay.request.before_upstream",
+    "relay.response.before_send",
+    "relay.completed",
+    "provider.fetch",
+    "provider.models",
+    "http.rpc",
+    "plugin.migrate"
+  ],
+  "permissions": [
+    "kv",
+    "secret",
+    "http",
+    "log",
+    "relay:read",
+    "relay:write",
+    "provider",
+    "rpc:read",
+    "rpc:write"
+  ],
+  "http_origins": ["https://example.com"],
+  "priority": 0,
+  "timeout_ms": 2000,
+  "memory_mib": 16,
+  "config_schema": {
+    "type": "object",
+    "properties": {
+      "model": {
+        "type": "string",
+        "description": "Rewrite the inbound model to this value before routing (empty = no rewrite)."
+      },
+      "system": {
+        "type": "string",
+        "description": "Override the system prompt before routing (empty = keep original)."
+      },
+      "max_tokens": {
+        "type": "integer",
+        "description": "Cap max_tokens before routing (0 = keep original)."
+      },
+      "exclude": {
+        "type": "array",
+        "description": "Provider ids to exclude from routing, e.g. [2, 5]."
+      },
+      "reverse_candidates": {
+        "type": "boolean",
+        "description": "Reverse the candidate order (strategy hook demo)."
+      },
+      "add_header": {
+        "type": "boolean",
+        "description": "Add an x-sepia-plugin: example header to upstream requests."
+      },
+      "response_marker": {
+        "type": "string",
+        "description": "Append this marker to each response choice's content (empty = no rewrite)."
+      }
+    }
+  },
+  "ui": {
+    "entry": "index.html",
+    "title": "Sepia Examples"
+  }
+}
